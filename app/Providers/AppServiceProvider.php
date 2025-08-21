@@ -4,6 +4,14 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+// Interfaces
+use App\Interfaces\AdminAuthInterface;
+use App\Interfaces\AdminUserInterface;
+
+// Services
+use App\Services\Admin\AdminAuthService;
+use App\Services\Admin\AdminUserService;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -11,7 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Bind Admin interfaces to implementations
+        $this->app->bind(AdminAuthInterface::class, AdminAuthService::class);
+        $this->app->bind(AdminUserInterface::class, AdminUserService::class);
     }
 
     /**

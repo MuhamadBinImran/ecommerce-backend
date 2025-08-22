@@ -31,12 +31,11 @@ class AdminSellerService implements AdminSellerInterface
                 return $this->response(false, 'No sellers found');
             }
 
-            $data = $sellers->map(fn(Seller $seller) => $this->formatSeller($seller))->toArray();
+            $data = $sellers->map(fn($seller) => $this->formatSeller($seller))->toArray();
 
             return $this->response(true, 'Sellers retrieved successfully', $data);
-
         } catch (Throwable $e) {
-            $this->errorLogger->log($e, ['method' => __METHOD__]);
+            $this->logError($e, __METHOD__);
             return $this->response(false, 'Failed to retrieve sellers', null, $e->getMessage());
         }
     }
@@ -54,15 +53,14 @@ class AdminSellerService implements AdminSellerInterface
             }
 
             return $this->response(true, 'Seller retrieved successfully', $this->formatSeller($seller));
-
         } catch (Throwable $e) {
-            $this->errorLogger->log($e, ['method' => __METHOD__, 'seller_id' => $id]);
+            $this->logError($e, __METHOD__, ['seller_id' => $id]);
             return $this->response(false, 'Failed to retrieve seller', null, $e->getMessage());
         }
     }
 
     /**
-     * Approve or unapprove seller
+     * Approve or unapprove a seller
      */
     public function toggleApproveSeller(int $id, bool $approve): array
     {
@@ -76,14 +74,8 @@ class AdminSellerService implements AdminSellerInterface
 
                 $seller->update(['is_approved' => $approve]);
 
-                // Send approval mail if approved
                 if ($approve) {
-                    try {
-                        Mail::to($seller->user->email)->queue(new SellerApprovalMail($seller->user));
-                    } catch (Throwable $mailError) {
-                        $this->errorLogger->log($mailError, ['method' => __METHOD__, 'seller_id' => $id, 'mail' => true]);
-                        // Continue without failing main transaction
-                    }
+                    $this->sendApprovalMail($seller);
                 }
 
                 return $this->response(
@@ -92,9 +84,8 @@ class AdminSellerService implements AdminSellerInterface
                     $this->formatSeller($seller)
                 );
             });
-
         } catch (Throwable $e) {
-            $this->errorLogger->log($e, ['method' => __METHOD__, 'seller_id' => $id]);
+            $this->logError($e, __METHOD__, ['seller_id' => $id]);
             return $this->response(false, 'Failed to update seller approval', null, $e->getMessage());
         }
     }
@@ -120,23 +111,23 @@ class AdminSellerService implements AdminSellerInterface
                     $this->formatSeller($seller)
                 );
             });
-
         } catch (Throwable $e) {
-            $this->errorLogger->log($e, ['method' => __METHOD__, 'seller_id' => $id]);
+            $this->logError($e, __METHOD__, ['seller_id' => $id]);
             return $this->response(false, 'Failed to update seller block status', null, $e->getMessage());
         }
     }
 
     /**
-     * Helper: format seller response
+     * Format seller data for response
      */
     private function formatSeller(Seller $seller): array
     {
+        $user = $seller->user;
         return [
             'seller_id'   => $seller->id,
-            'user_id'     => $seller->user->id ?? null,
-            'name'        => $seller->user->name ?? null,
-            'email'       => $seller->user->email ?? null,
+            'user_id'     => $user->id ?? null,
+            'name'        => $user->name ?? null,
+            'email'       => $user->email ?? null,
             'is_approved' => (bool) $seller->is_approved,
             'is_blocked'  => (bool) $seller->is_blocked,
             'profile'     => [
@@ -152,15 +143,31 @@ class AdminSellerService implements AdminSellerInterface
     }
 
     /**
-     * Standard response
+     * Send approval email safely
+     */
+    private function sendApprovalMail(Seller $seller): void
+    {
+        try {
+            Mail::to($seller->user->email)->queue(new SellerApprovalMail($seller->user));
+        } catch (Throwable $mailError) {
+            $this->logError($mailError, __METHOD__, ['seller_id' => $seller->id, 'mail' => true]);
+            // Continue without breaking main transaction
+        }
+    }
+
+    /**
+     * Standardized response format
      */
     private function response(bool $success, string $message, ?array $data = null, ?string $error = null): array
     {
-        return [
-            'success' => $success,
-            'message' => $message,
-            'data'    => $data,
-            'error'   => $error,
-        ];
+        return compact('success', 'message', 'data', 'error');
+    }
+
+    /**
+     * Centralized error logging helper
+     */
+    private function logError(Throwable $e, string $method, array $context = []): void
+    {
+        $this->errorLogger->log($e, array_merge(['method' => $method], $context));
     }
 }

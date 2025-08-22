@@ -11,12 +11,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Call the AdminSeeder to create admin user
         $this->call([
-            CustomerSeeder::class,
-        ]);
+            ProductCategorySeeder::class, // if you don’t have categories, create some
 
-        // Optional: create test users
-        // \App\Models\User::factory(10)->create();
+        ]);
     }
+
 }

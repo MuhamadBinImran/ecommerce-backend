@@ -43,6 +43,23 @@ class AdminAuthService implements AdminAuthInterface
                 return $this->response(false, "Unauthorized: Not a {$role}");
             }
 
+            // Extra: Seller-specific login rules
+            if ($user->hasRole('seller')) {
+                $seller = $user->seller;
+
+                if (!$seller) {
+                    return $this->response(false, 'Seller profile not found.');
+                }
+
+                if (!$seller->is_approved) {
+                    return $this->response(false, 'Your seller account is not yet approved by admin.');
+                }
+
+                if ($seller->is_blocked) {
+                    return $this->response(false, 'Your seller account has been blocked. Contact support.');
+                }
+            }
+
             if (!Hash::check($data['password'], $user->password)) {
                 return $this->response(false, 'Incorrect password');
             }
@@ -51,7 +68,7 @@ class AdminAuthService implements AdminAuthInterface
 
             return $this->response(true, 'Login successful', [
                 'user'  => $user,
-                'roles' => $user->getRoleNames(), // return all roles
+                'roles' => $user->getRoleNames(),
                 'token' => $token,
             ]);
 
@@ -60,6 +77,7 @@ class AdminAuthService implements AdminAuthInterface
             return $this->response(false, 'Login failed due to server error', null, $e->getMessage());
         }
     }
+
 
     /**
      * Logout

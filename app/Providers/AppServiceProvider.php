@@ -22,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
         // Bind Admin interfaces to implementations
         $this->app->bind(AdminAuthInterface::class, AdminAuthService::class);
         $this->app->bind(AdminUserInterface::class, AdminUserService::class);
+        $this->app->bind(\App\Interfaces\AdminSellerInterface::class, \App\Services\Admin\AdminSellerService::class);
+
     }
 
     /**

@@ -1,15 +1,21 @@
 <?php
 
+use App\Http\Controllers\Seller\SellerAuthController;
+use App\Http\Controllers\Seller\SellerOrderController;
+use App\Http\Controllers\Seller\SellerProductController;
+use App\Http\Controllers\Seller\SellerProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminSellerController;
 use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminOrderController;
 
 // --- Public Routes ---
 Route::post('login', [AdminAuthController::class, 'login']);
+Route::post('sellers/register', [SellerAuthController::class, 'register']);
 
-// --- Protected Routes (JWT auth + Role-based Access) ---
+// --- Protected Routes ---
 Route::middleware(['auth.api'])->group(function () {
 
     // Logout (Unified for all roles)
@@ -17,41 +23,69 @@ Route::middleware(['auth.api'])->group(function () {
 
     /**
      * ======================
-     * ADMIN-ONLY ROUTES
+     * ADMIN ROUTES (JWT + Role:admin)
      * ======================
      */
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
 
-        // --- Customer Management ---
-        Route::get('customers', [AdminUserController::class, 'index']);        // List all customers
-        Route::get('customers/{id}', [AdminUserController::class, 'show']);    // Show customer details
-        Route::patch('customers/{id}/block', [AdminUserController::class, 'blockCustomer']); // Block/unblock customer
+        /**
+         * --- Customer Management ---
+         */
+        Route::prefix('customers')->group(function () {
+            Route::get('/', [AdminUserController::class, 'index']); // List all customers
+            Route::get('{id}', [AdminUserController::class, 'show'])->whereNumber('id'); // Customer details
+            Route::patch('{id}/block', [AdminUserController::class, 'blockCustomer'])->whereNumber('id'); // Block/unblock customer
+        });
 
-        // --- Seller Management ---
-        Route::get('sellers', [AdminSellerController::class, 'index']);        // List all sellers
-        Route::get('sellers/{id}', [AdminSellerController::class, 'show']);    // Show seller details
-        Route::patch('sellers/{id}/approve', [AdminSellerController::class, 'approve']); // Approve/unapprove seller
-        Route::patch('sellers/{id}/block', [AdminSellerController::class, 'block']);     // Block/unblock seller
+        /**
+         * --- Seller Management ---
+         */
+        Route::prefix('sellers')->group(function () {
+            Route::get('/', [AdminSellerController::class, 'index']);
+            Route::get('{id}', [AdminSellerController::class, 'show'])->whereNumber('id');
+            Route::patch('{id}/approve', [AdminSellerController::class, 'approve'])->whereNumber('id');
+            Route::patch('{id}/block', [AdminSellerController::class, 'block'])->whereNumber('id');
+            Route::get('{sellerId}/products', [AdminProductController::class, 'listBySeller'])->whereNumber('sellerId');
+        });
 
-        // --- Product Management (Moderation) ---
-        Route::get('products', [AdminProductController::class, 'index']);         // List all products
-        Route::get('products/pending', [AdminProductController::class, 'pending']); // List pending products
-        Route::get('products/{id}', [AdminProductController::class, 'show']);     // Show product details
-        Route::patch('products/{id}/approve', [AdminProductController::class, 'approve']); // Approve product
-        Route::patch('products/{id}/reject', [AdminProductController::class, 'reject']);   // Reject product
-        Route::patch('products/{id}/block', [AdminProductController::class, 'block']);     // Block/unblock product
-        Route::delete('products/{id}', [AdminProductController::class, 'destroy']);       // Delete product
+        /**
+         * --- Product Management ---
+         */
+        Route::prefix('products')->group(function () {
+            // Bulk actions
+            Route::patch('bulk/approve', [AdminProductController::class, 'bulkApprove']);
+            Route::patch('bulk/reject', [AdminProductController::class, 'bulkReject']);
+            Route::delete('bulk/delete', [AdminProductController::class, 'bulkDelete']);
 
-        // --- Bulk Moderation ---
-        Route::patch('products/bulk/approve', [AdminProductController::class, 'bulkApprove']); // Bulk approve
-        Route::patch('products/bulk/reject',  [AdminProductController::class, 'bulkReject']);  // Bulk reject
-        Route::delete('products/bulk/delete', [AdminProductController::class, 'bulkDelete']);  // Bulk delete
+            // Listing & details
+            Route::get('/', [AdminProductController::class, 'index']);
+            Route::get('pending', [AdminProductController::class, 'pending']);
+            Route::get('{id}', [AdminProductController::class, 'show'])->whereNumber('id');
 
-        // --- Product Assets ---
-        Route::delete('products/{productId}/images/{imageId}', [AdminProductController::class, 'removeImage']); // Delete product image
+            // Individual moderation
+            Route::patch('{id}/approve', [AdminProductController::class, 'approve'])->whereNumber('id');
+            Route::patch('{id}/reject', [AdminProductController::class, 'reject'])->whereNumber('id');
+            Route::patch('{id}/block', [AdminProductController::class, 'block'])->whereNumber('id');
+            Route::delete('{id}', [AdminProductController::class, 'destroy'])->whereNumber('id');
 
-        // --- Seller-Specific Product Listings (Admin View) ---
-        Route::get('sellers/{sellerId}/products', [AdminProductController::class, 'listBySeller']); // Products by seller
+            // Product assets
+            Route::delete('{productId}/images/{imageId}', [AdminProductController::class, 'removeImage'])
+                ->whereNumber('productId')
+                ->whereNumber('imageId');
+        });
+
+        /**
+         * --- Order Management ---
+         */
+        Route::prefix('orders')->group(function () {
+            Route::get('/', [AdminOrderController::class, 'index']);
+            Route::get('{id}', [AdminOrderController::class, 'show'])->whereNumber('id');
+            Route::patch('{id}', [AdminOrderController::class, 'update'])->whereNumber('id');
+            Route::post('{id}/refund', [AdminOrderController::class, 'refund'])->whereNumber('id');
+            Route::patch('bulk/update', [AdminOrderController::class, 'bulkUpdate']);
+            Route::patch('{id}/dispute', [AdminOrderController::class, 'dispute'])->whereNumber('id');
+            Route::patch('{id}/returned', [AdminOrderController::class, 'returned'])->whereNumber('id');
+        });
     });
 
     /**
@@ -70,5 +104,18 @@ Route::middleware(['auth.api'])->group(function () {
      */
     Route::middleware(['role:seller'])->prefix('seller')->group(function () {
         // Define seller-specific routes here
+        Route::get('profile', [SellerProfileController::class, 'show']);
+        Route::patch('profile', [SellerProfileController::class, 'update']);
+        Route::get('products', [SellerProductController::class, 'index']);
+        Route::post('products', [SellerProductController::class, 'store']);
+        Route::get('products/{id}', [SellerProductController::class, 'show']);
+        Route::patch('products/{id}', [SellerProductController::class, 'update']);
+        Route::delete('products/{id}', [SellerProductController::class, 'destroy']);
+        Route::patch('products/{id}/stock', [SellerProductController::class, 'updateStock']);
+        // Orders
+        Route::get('orders', [SellerOrderController::class, 'index']);
+        Route::get('orders/{id}', [SellerOrderController::class, 'show'])->whereNumber('id');
+        Route::patch('orders/{id}/status', [SellerOrderController::class, 'updateStatus'])->whereNumber('id');
+        Route::patch('orders/{id}/return', [SellerOrderController::class, 'requestReturn'])->whereNumber('id');
     });
 });

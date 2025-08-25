@@ -12,7 +12,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            OrderSeeder::class, // if you don’t have categories, create some
+            AdminSeeder::class,
+            CustomerSeeder::class,
+            SellerSeeder::class,
+            ProductCategorySeeder::class,
+            ProductSeeder::class,
+            OrderSeeder::class,// if you don’t have categories, create some
 
         ]);
     }

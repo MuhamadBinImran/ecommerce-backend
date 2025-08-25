@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Customer\CustomerRegistrationController;
 use App\Http\Controllers\Seller\SellerAuthController;
 use App\Http\Controllers\Seller\SellerOrderController;
 use App\Http\Controllers\Seller\SellerProductController;
@@ -14,6 +15,11 @@ use App\Http\Controllers\Admin\AdminOrderController;
 // --- Public Routes ---
 Route::post('login', [AdminAuthController::class, 'login']);
 Route::post('sellers/register', [SellerAuthController::class, 'register']);
+Route::prefix('customers/register')->group(function () {
+    Route::post('request-otp', [CustomerRegistrationController::class, 'requestOtp']);
+    Route::post('verify', [CustomerRegistrationController::class, 'verify']);
+    Route::post('resend-otp', [CustomerRegistrationController::class, 'resend']);
+});
 
 // --- Protected Routes ---
 Route::middleware(['auth.api'])->group(function () {
@@ -95,6 +101,7 @@ Route::middleware(['auth.api'])->group(function () {
      */
     Route::middleware(['role:customer'])->prefix('customer')->group(function () {
         // Define customer-specific routes here
+
     });
 
     /**

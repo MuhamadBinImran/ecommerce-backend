@@ -4,12 +4,14 @@ namespace App\Providers;
 
 use App\Interfaces\AdminOrderInterface;
 use App\Interfaces\AdminProductInterface;
+use App\Interfaces\CustomerRegistrationInterface;
 use App\Interfaces\SellerAuthInterface;
 use App\Interfaces\SellerOrderInterface;
 use App\Interfaces\SellerProductInterface;
 use App\Interfaces\SellerProfileInterface;
 use App\Services\Admin\AdminOrderService;
 use App\Services\Admin\AdminProductService;
+use App\Services\Customer\CustomerRegistrationService;
 use App\Services\Seller\SellerOrderService;
 use App\Services\Seller\SellerProductService;
 use App\Services\Seller\SellerProfileService;
@@ -43,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SellerProfileInterface::class, SellerProfileService::class);
         $this->app->bind(SellerProductInterface::class, SellerProductService::class);
         $this->app->bind(SellerOrderInterface::class, SellerOrderService::class);
+
+        $this->app->bind(CustomerRegistrationInterface::class, CustomerRegistrationService::class);
     }
 
     /**

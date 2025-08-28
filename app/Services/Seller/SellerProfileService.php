@@ -19,16 +19,25 @@ class SellerProfileService implements SellerProfileInterface
     public function getProfile(int $userId): array
     {
         try {
-            $seller = Seller::where('user_id', $userId)->first();
+            $seller = Seller::with('user:id,email') // eager load user email
+            ->where('user_id', $userId)
+                ->first();
+
             if (!$seller) {
                 return ['success' => false, 'message' => 'Seller profile not found.'];
             }
-            return ['success' => true, 'data' => $seller];
+
+            // Merge seller data with email
+            $profile = $seller->toArray();
+            $profile['email'] = $seller->user->email ?? null;
+
+            return ['success' => true, 'data' => $profile];
         } catch (Throwable $e) {
             $this->logger->log($e, ['action' => 'get_seller_profile', 'user_id' => $userId]);
             return ['success' => false, 'message' => 'Failed to fetch profile.', 'error' => $e->getMessage()];
         }
     }
+
 
     public function updateProfile(int $userId, array $data): array
     {

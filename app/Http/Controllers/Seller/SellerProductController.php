@@ -7,6 +7,7 @@ use App\Interfaces\SellerProductInterface;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Requests\ProductStockUpdateRequest;
+use App\Models\ProductCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -101,5 +102,13 @@ class SellerProductController extends Controller
         $data = $request->validated();
         $response = $this->service->updateStock($sellerId, $id, $data);
         return response()->json($response);
+    }
+    public function categories(): \Illuminate\Http\JsonResponse
+    {
+        $categories = ProductCategory::all();
+        return response()->json([
+            'success' => true,
+            'data' => $categories
+        ]);
     }
 }

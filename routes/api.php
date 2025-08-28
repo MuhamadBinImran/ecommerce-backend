@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\Customer\CustomerRegistrationController;
+use App\Http\Controllers\Customer\ProductBrowseController;
+use App\Http\Controllers\Customer\WishlistController;
 use App\Http\Controllers\Seller\SellerAuthController;
 use App\Http\Controllers\Seller\SellerOrderController;
 use App\Http\Controllers\Seller\SellerProductController;
@@ -20,6 +24,8 @@ Route::prefix('customers/register')->group(function () {
     Route::post('verify', [CustomerRegistrationController::class, 'verify']);
     Route::post('resend-otp', [CustomerRegistrationController::class, 'resend']);
 });
+Route::get('products', [ProductBrowseController::class, 'index']);
+Route::get('products/{id}', [ProductBrowseController::class, 'show'])->whereNumber('id');
 
 // --- Protected Routes ---
 Route::middleware(['auth.api'])->group(function () {
@@ -48,6 +54,7 @@ Route::middleware(['auth.api'])->group(function () {
          */
         Route::prefix('sellers')->group(function () {
             Route::get('/', [AdminSellerController::class, 'index']);
+            Route::get('categories', [SellerProductController::class, 'categories']);
             Route::get('{id}', [AdminSellerController::class, 'show'])->whereNumber('id');
             Route::patch('{id}/approve', [AdminSellerController::class, 'approve'])->whereNumber('id');
             Route::patch('{id}/block', [AdminSellerController::class, 'block'])->whereNumber('id');
@@ -92,6 +99,11 @@ Route::middleware(['auth.api'])->group(function () {
             Route::patch('{id}/dispute', [AdminOrderController::class, 'dispute'])->whereNumber('id');
             Route::patch('{id}/returned', [AdminOrderController::class, 'returned'])->whereNumber('id');
         });
+
+        // inside admin middleware group (prefix 'admin')
+        Route::get('dashboard/stats', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'stats']);
+
+
     });
 
     /**
@@ -101,6 +113,16 @@ Route::middleware(['auth.api'])->group(function () {
      */
     Route::middleware(['role:customer'])->prefix('customer')->group(function () {
         // Define customer-specific routes here
+        Route::get('profile', [CustomerProfileController::class, 'show']);
+        Route::patch('profile', [CustomerProfileController::class, 'update']);
+        Route::get('cart', [CartController::class, 'index']);
+        Route::post('cart', [CartController::class, 'store']);
+        Route::patch('cart/{productId}', [CartController::class, 'update']);
+        Route::delete('cart/{productId}', [CartController::class, 'destroy']);
+        Route::get('/wishlist', [WishlistController::class, 'index']);
+        Route::post('/wishlist', [WishlistController::class, 'store']);
+        Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
+        Route::delete('/wishlist', [WishlistController::class, 'clear']);
 
     });
 
@@ -114,6 +136,7 @@ Route::middleware(['auth.api'])->group(function () {
         Route::get('profile', [SellerProfileController::class, 'show']);
         Route::patch('profile', [SellerProfileController::class, 'update']);
         Route::get('products', [SellerProductController::class, 'index']);
+        Route::get('categories', [SellerProductController::class, 'categories']);
         Route::post('products', [SellerProductController::class, 'store']);
         Route::get('products/{id}', [SellerProductController::class, 'show']);
         Route::patch('products/{id}', [SellerProductController::class, 'update']);
@@ -124,5 +147,9 @@ Route::middleware(['auth.api'])->group(function () {
         Route::get('orders/{id}', [SellerOrderController::class, 'show'])->whereNumber('id');
         Route::patch('orders/{id}/status', [SellerOrderController::class, 'updateStatus'])->whereNumber('id');
         Route::patch('orders/{id}/return', [SellerOrderController::class, 'requestReturn'])->whereNumber('id');
+
+
+// inside seller middleware group (prefix 'seller')
+        Route::get('dashboard/stats', [\App\Http\Controllers\Seller\SellerDashboardController::class, 'stats']);
     });
 });

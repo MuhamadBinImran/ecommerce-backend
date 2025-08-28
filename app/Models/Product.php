@@ -34,5 +34,10 @@ class Product extends Model
     {
         return $this->hasMany(ProductImage::class);
     }
+    public function scopeApproved($query)
+    {
+        return $query->where('is_approved', true)->where('is_blocked', false);
+    }
+
 }
 

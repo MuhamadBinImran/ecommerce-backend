@@ -7,7 +7,6 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\ErrorLogService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class SellerProductService implements SellerProductInterface
@@ -40,8 +39,8 @@ class SellerProductService implements SellerProductInterface
 
                         ProductImage::create([
                             'product_id' => $product->id,
-                            // store as full URL (http://domain/storage/products/xyz.jpg)
-                            'image_path' => asset('storage/' . $path),
+                            // store only relative path
+                            'image_path' => $path,
                         ]);
                     }
                 }
@@ -137,7 +136,7 @@ class SellerProductService implements SellerProductInterface
 
                     ProductImage::create([
                         'product_id' => $product->id,
-                        'image_path' => asset('storage/' . $path),
+                        'image_path' => $path,
                     ]);
                 }
             }

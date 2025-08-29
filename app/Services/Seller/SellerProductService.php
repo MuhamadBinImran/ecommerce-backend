@@ -109,13 +109,37 @@ class SellerProductService implements SellerProductInterface
                 return ['success' => false, 'message' => 'Product not found.'];
             }
 
-            $product->update($data);
-            return ['success' => true, 'message' => 'Product updated.', 'data' => $product];
+            // Update product fields except images
+            $updateData = $data;
+            unset($updateData['images']);
+            $product->update($updateData);
+
+            // Handle new images if provided
+            if (!empty($data['images'])) {
+                foreach ($data['images'] as $file) {
+                    $path = $file->store('products', 'public');
+
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_path' => 'storage/' . $path,
+                    ]);
+                }
+            }
+
+            // Load fresh images
+            $product->load('images');
+
+            return [
+                'success' => true,
+                'message' => 'Product updated.',
+                'data' => $product
+            ];
         } catch (Throwable $e) {
             $this->logger->log($e, ['action' => 'update_product', 'product_id' => $productId]);
             return ['success' => false, 'message' => 'Failed to update product.', 'error' => $e->getMessage()];
         }
     }
+
 
     public function delete(int $sellerId, int $productId): array
     {

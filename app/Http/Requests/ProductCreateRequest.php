@@ -20,7 +20,8 @@ class ProductCreateRequest extends FormRequest
             'price'       => 'required|numeric|min:0',
             'stock'       => 'nullable|integer|min:0',
             'images'      => 'nullable|array',
-            'images.*'    => 'string', // store image path
+            'images.*'    => 'image|mimes:jpeg,png,jpg,gif|max:2048', // accept files not string
         ];
     }
+
 }

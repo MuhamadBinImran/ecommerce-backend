@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\ErrorLogService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class SellerProductService implements SellerProductInterface
@@ -23,33 +24,40 @@ class SellerProductService implements SellerProductInterface
         try {
             return DB::transaction(function () use ($data) {
                 $product = Product::create([
-                    'seller_id' => $data['seller_id'],
+                    'seller_id'   => $data['seller_id'],
                     'category_id' => $data['category_id'],
-                    'name' => $data['name'],
+                    'name'        => $data['name'],
                     'description' => $data['description'] ?? null,
-                    'price' => $data['price'],
-                    'stock' => $data['stock'] ?? 0,
+                    'price'       => $data['price'],
+                    'stock'       => $data['stock'] ?? 0,
                     'is_approved' => false, // pending approval
                 ]);
 
                 // Save images if present
                 if (!empty($data['images'])) {
                     foreach ($data['images'] as $file) {
-                        $path = $file->store('products', 'public'); // saves in storage/app/public/products
+                        $path = $file->store('products', 'public'); // e.g. products/xyz.jpg
 
                         ProductImage::create([
                             'product_id' => $product->id,
-                            'image_path' => 'storage/' . $path
+                            // store as full URL (http://domain/storage/products/xyz.jpg)
+                            'image_path' => asset('storage/' . $path),
                         ]);
                     }
                 }
 
+                // return product with images loaded
+                $product->load('images');
 
                 return ['success' => true, 'data' => $product];
             });
         } catch (Throwable $e) {
             $this->logger->log($e, ['action' => 'create_product', 'payload' => $data]);
-            return ['success' => false, 'message' => 'Failed to create product.', 'error' => $e->getMessage()];
+            return [
+                'success' => false,
+                'message' => 'Failed to create product.',
+                'error'   => $e->getMessage()
+            ];
         }
     }
 
@@ -75,7 +83,11 @@ class SellerProductService implements SellerProductInterface
             return ['success' => true, 'data' => $products];
         } catch (Throwable $e) {
             $this->logger->log($e, ['action' => 'list_products', 'seller_id' => $sellerId]);
-            return ['success' => false, 'message' => 'Failed to fetch products.', 'error' => $e->getMessage()];
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch products.',
+                'error'   => $e->getMessage()
+            ];
         }
     }
 
@@ -94,7 +106,11 @@ class SellerProductService implements SellerProductInterface
             return ['success' => true, 'data' => $product];
         } catch (Throwable $e) {
             $this->logger->log($e, ['action' => 'get_product', 'product_id' => $productId]);
-            return ['success' => false, 'message' => 'Failed to fetch product.', 'error' => $e->getMessage()];
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch product.',
+                'error'   => $e->getMessage()
+            ];
         }
     }
 
@@ -121,7 +137,7 @@ class SellerProductService implements SellerProductInterface
 
                     ProductImage::create([
                         'product_id' => $product->id,
-                        'image_path' => 'storage/' . $path,
+                        'image_path' => asset('storage/' . $path),
                     ]);
                 }
             }
@@ -132,14 +148,17 @@ class SellerProductService implements SellerProductInterface
             return [
                 'success' => true,
                 'message' => 'Product updated.',
-                'data' => $product
+                'data'    => $product
             ];
         } catch (Throwable $e) {
             $this->logger->log($e, ['action' => 'update_product', 'product_id' => $productId]);
-            return ['success' => false, 'message' => 'Failed to update product.', 'error' => $e->getMessage()];
+            return [
+                'success' => false,
+                'message' => 'Failed to update product.',
+                'error'   => $e->getMessage()
+            ];
         }
     }
-
 
     public function delete(int $sellerId, int $productId): array
     {
@@ -156,7 +175,11 @@ class SellerProductService implements SellerProductInterface
             return ['success' => true, 'message' => 'Product deleted.'];
         } catch (Throwable $e) {
             $this->logger->log($e, ['action' => 'delete_product', 'product_id' => $productId]);
-            return ['success' => false, 'message' => 'Failed to delete product.', 'error' => $e->getMessage()];
+            return [
+                'success' => false,
+                'message' => 'Failed to delete product.',
+                'error'   => $e->getMessage()
+            ];
         }
     }
 
@@ -176,10 +199,18 @@ class SellerProductService implements SellerProductInterface
             if (isset($data['price'])) $updateData['price'] = $data['price'];
 
             $product->update($updateData);
-            return ['success' => true, 'message' => 'Stock/Price updated.', 'data' => $product];
+            return [
+                'success' => true,
+                'message' => 'Stock/Price updated.',
+                'data'    => $product
+            ];
         } catch (Throwable $e) {
             $this->logger->log($e, ['action' => 'update_stock', 'product_id' => $productId]);
-            return ['success' => false, 'message' => 'Failed to update stock/price.', 'error' => $e->getMessage()];
+            return [
+                'success' => false,
+                'message' => 'Failed to update stock/price.',
+                'error'   => $e->getMessage()
+            ];
         }
     }
 }

@@ -2,33 +2,37 @@
 
 namespace App\Providers;
 
-use App\Interfaces\AdminOrderInterface;
-use App\Interfaces\AdminProductInterface;
-use App\Interfaces\CartInterface;
-use App\Interfaces\CustomerRegistrationInterface;
-use App\Interfaces\SellerAuthInterface;
-use App\Interfaces\SellerOrderInterface;
-use App\Interfaces\SellerProductInterface;
-use App\Interfaces\SellerProfileInterface;
-use App\Interfaces\WishlistInterface;
-use App\Services\Admin\AdminOrderService;
-use App\Services\Admin\AdminProductService;
-use App\Services\Customer\CartService;
-use App\Services\Customer\CustomerRegistrationService;
-use App\Services\Customer\WishlistService;
-use App\Services\Seller\SellerOrderService;
-use App\Services\Seller\SellerProductService;
-use App\Services\Seller\SellerProfileService;
-use App\Services\SellerAuthService;
 use Illuminate\Support\ServiceProvider;
 
 // Interfaces
 use App\Interfaces\AdminAuthInterface;
 use App\Interfaces\AdminUserInterface;
+use App\Interfaces\AdminOrderInterface;
+use App\Interfaces\AdminProductInterface;
+use App\Interfaces\CartInterface;
+use App\Interfaces\CustomerRegistrationInterface;
+use App\Interfaces\OrderInterface;            // ✅ ADD
+use App\Interfaces\SellerAuthInterface;
+use App\Interfaces\SellerOrderInterface;
+use App\Interfaces\SellerProductInterface;
+use App\Interfaces\SellerProfileInterface;
+use App\Interfaces\WishlistInterface;
 
 // Services
 use App\Services\Admin\AdminAuthService;
 use App\Services\Admin\AdminUserService;
+use App\Services\Admin\AdminOrderService;
+use App\Services\Admin\AdminProductService;
+use App\Services\Customer\CartService;
+use App\Services\Customer\CustomerRegistrationService;
+use App\Services\Customer\OrderService;        // ✅ ADD
+use App\Services\Customer\WishlistService;
+use App\Services\Seller\SellerOrderService;
+use App\Services\Seller\SellerProductService;
+use App\Services\Seller\SellerProfileService;
+use App\Services\SellerAuthService;
+use App\Services\Admin\AdminSellerService;
+use App\Interfaces\AdminSellerInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,23 +41,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Bind Admin interfaces to implementations
+        // Admin
         $this->app->bind(AdminAuthInterface::class, AdminAuthService::class);
         $this->app->bind(AdminUserInterface::class, AdminUserService::class);
-        $this->app->bind(\App\Interfaces\AdminSellerInterface::class, \App\Services\Admin\AdminSellerService::class);
+        $this->app->bind(AdminSellerInterface::class, AdminSellerService::class);
         $this->app->bind(AdminProductInterface::class, AdminProductService::class);
         $this->app->bind(AdminOrderInterface::class, AdminOrderService::class);
+
+        // Seller
         $this->app->bind(SellerAuthInterface::class, SellerAuthService::class);
-
-
         $this->app->bind(SellerProfileInterface::class, SellerProfileService::class);
         $this->app->bind(SellerProductInterface::class, SellerProductService::class);
         $this->app->bind(SellerOrderInterface::class, SellerOrderService::class);
 
+        // Customer
         $this->app->bind(CustomerRegistrationInterface::class, CustomerRegistrationService::class);
-
         $this->app->bind(WishlistInterface::class, WishlistService::class);
         $this->app->bind(CartInterface::class, CartService::class);
+        $this->app->bind(OrderInterface::class, OrderService::class);
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\Customer\CustomerRegistrationController;
 use App\Http\Controllers\Customer\ProductBrowseController;
@@ -124,6 +125,9 @@ Route::middleware(['auth.api'])->group(function () {
         Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
         Route::delete('/wishlist', [WishlistController::class, 'clear']);
 
+        Route::post('checkout', [CheckoutController::class, 'store']);    // POST /api/customer/checkout
+        Route::get('orders', [CheckoutController::class, 'index']);       // GET /api/customer/orders
+        Route::get('orders/{id}', [CheckoutController::class, 'show']);
     });
 
     /**

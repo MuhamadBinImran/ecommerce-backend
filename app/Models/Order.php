@@ -31,10 +31,19 @@ class Order extends Model
         'total' => 'decimal:2',
     ];
 
-    // relations
+    /**
+     * Primary relationship name used across services/controllers.
+     * Kept 'items' as alias for backwards compatibility.
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'order_id');
+    }
+
+    // alias (for any legacy code that used items())
     public function items()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->orderItems();
     }
 
     public function user()
@@ -49,7 +58,6 @@ class Order extends Model
 
     public function scopeForSeller($q, int $sellerId)
     {
-        return $q->whereHas('items', fn($iq) => $iq->where('seller_id', $sellerId));
+        return $q->whereHas('orderItems', fn($iq) => $iq->where('seller_id', $sellerId));
     }
-
 }

@@ -24,9 +24,16 @@ class ProductImage extends Model
      */
     public function getUrlAttribute()
     {
-        // Ensure image_path is not empty
-        return $this->image_path
-            ? asset($this->image_path)
-            : null;
+        if (!$this->image_path) {
+            return null;
+        }
+
+        // If already has full URL (like s3), return directly
+        if (filter_var($this->image_path, FILTER_VALIDATE_URL)) {
+            return $this->image_path;
+        }
+
+        // Normalize path and always serve from /storage/
+        return asset('storage/' . ltrim(str_replace('public/', '', $this->image_path), '/'));
     }
 }

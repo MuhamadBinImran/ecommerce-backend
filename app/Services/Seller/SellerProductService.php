@@ -29,23 +29,22 @@ class SellerProductService implements SellerProductInterface
                     'description' => $data['description'] ?? null,
                     'price'       => $data['price'],
                     'stock'       => $data['stock'] ?? 0,
-                    'is_approved' => false, // pending approval
+                    'is_approved' => false,
                 ]);
 
                 // Save images if present
                 if (!empty($data['images'])) {
                     foreach ($data['images'] as $file) {
-                        $path = $file->store('products', 'public'); // e.g. products/xyz.jpg
+                        $path = $file->store('products', 'public'); // storage/app/public/products/xyz.jpg
 
                         ProductImage::create([
                             'product_id' => $product->id,
-                            // store only relative path
-                            'image_path' => $path,
+                            // store only relative path without "public/"
+                            'image_path' => str_replace('public/', '', $path),
                         ]);
                     }
                 }
 
-                // return product with images loaded
                 $product->load('images');
 
                 return ['success' => true, 'data' => $product];
@@ -124,7 +123,6 @@ class SellerProductService implements SellerProductInterface
                 return ['success' => false, 'message' => 'Product not found.'];
             }
 
-            // Update product fields except images
             $updateData = $data;
             unset($updateData['images']);
             $product->update($updateData);
@@ -136,12 +134,11 @@ class SellerProductService implements SellerProductInterface
 
                     ProductImage::create([
                         'product_id' => $product->id,
-                        'image_path' => $path,
+                        'image_path' => str_replace('public/', '', $path),
                     ]);
                 }
             }
 
-            // Load fresh images
             $product->load('images');
 
             return [

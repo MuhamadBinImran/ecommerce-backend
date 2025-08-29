@@ -34,13 +34,16 @@ class SellerProductService implements SellerProductInterface
 
                 // Save images if present
                 if (!empty($data['images'])) {
-                    foreach ($data['images'] as $path) {
+                    foreach ($data['images'] as $file) {
+                        $path = $file->store('products', 'public'); // saves in storage/app/public/products
+
                         ProductImage::create([
                             'product_id' => $product->id,
-                            'image_path' => $path
+                            'image_path' => 'storage/' . $path
                         ]);
                     }
                 }
+
 
                 return ['success' => true, 'data' => $product];
             });

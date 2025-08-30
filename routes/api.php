@@ -29,8 +29,8 @@ Route::prefix('customers/register')->group(function () {
 Route::get('products', [ProductBrowseController::class, 'index']);
 Route::get('products/{id}', [ProductBrowseController::class, 'show'])->whereNumber('id');
 
-Route::get('categories', [CategoryController::class, 'index']);
-Route::get('categories/{id}/products', [CategoryController::class, 'products'])->whereNumber('id');
+Route::get('categories-products', [CategoryController::class, 'index']);
+Route::get('categories-products/{id}/products', [CategoryController::class, 'products'])->whereNumber('id');
 // --- Protected Routes ---
 Route::middleware(['auth.api'])->group(function () {
 

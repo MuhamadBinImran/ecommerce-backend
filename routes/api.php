@@ -28,6 +28,8 @@ Route::prefix('customers/register')->group(function () {
 Route::get('products', [ProductBrowseController::class, 'index']);
 Route::get('products/{id}', [ProductBrowseController::class, 'show'])->whereNumber('id');
 
+Route::get('categories', [\App\Http\Controllers\Customer\CategoryController::class, 'index']);
+Route::get('categories/{id}/products', [\App\Http\Controllers\Customer\CategoryController::class, 'products'])->whereNumber('id');
 // --- Protected Routes ---
 Route::middleware(['auth.api'])->group(function () {
 

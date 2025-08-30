@@ -123,11 +123,28 @@ class SellerProductService implements SellerProductInterface
                 return ['success' => false, 'message' => 'Product not found.'];
             }
 
+            // Update product fields except images
             $updateData = $data;
-            unset($updateData['images']);
+            unset($updateData['images'], $updateData['remove_images']);
             $product->update($updateData);
 
-            // Handle new images if provided
+            // Handle removing old images
+            if (!empty($data['remove_images'])) {
+                $imagesToRemove = ProductImage::where('product_id', $product->id)
+                    ->whereIn('id', $data['remove_images'])
+                    ->get();
+
+                foreach ($imagesToRemove as $image) {
+                    // Delete file from storage if exists
+                    $filePath = storage_path('app/public/' . $image->image_path);
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                    $image->delete();
+                }
+            }
+
+            // Handle adding new images
             if (!empty($data['images'])) {
                 foreach ($data['images'] as $file) {
                     $path = $file->store('products', 'public');
@@ -143,7 +160,7 @@ class SellerProductService implements SellerProductInterface
 
             return [
                 'success' => true,
-                'message' => 'Product updated.',
+                'message' => 'Product updated successfully.',
                 'data'    => $product
             ];
         } catch (Throwable $e) {
@@ -155,6 +172,7 @@ class SellerProductService implements SellerProductInterface
             ];
         }
     }
+
 
     public function delete(int $sellerId, int $productId): array
     {

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\CategoryController;
 use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\Customer\CustomerRegistrationController;
@@ -28,8 +29,8 @@ Route::prefix('customers/register')->group(function () {
 Route::get('products', [ProductBrowseController::class, 'index']);
 Route::get('products/{id}', [ProductBrowseController::class, 'show'])->whereNumber('id');
 
-Route::get('categories', [\App\Http\Controllers\Customer\CategoryController::class, 'index']);
-Route::get('categories/{id}/products', [\App\Http\Controllers\Customer\CategoryController::class, 'products'])->whereNumber('id');
+Route::get('categories', [CategoryController::class, 'index']);
+Route::get('categories/{id}/products', [CategoryController::class, 'products'])->whereNumber('id');
 // --- Protected Routes ---
 Route::middleware(['auth.api'])->group(function () {
 

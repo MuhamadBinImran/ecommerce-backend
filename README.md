@@ -1,118 +1,121 @@
 <!-- Stickers / Badges -->
-[![Laravel Version](https://img.shields.io/badge/Laravel-10.x-brightgreen)](https://laravel.com/)
-[![PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://www.php.net/)
+[![Laravel Version](https://img.shields.io/badge/Laravel-12.x-brightgreen)](https://laravel.com/)
+[![PHP Version](https://img.shields.io/badge/PHP-8.3-blue)](https://www.php.net/)
+[![Deployment](https://img.shields.io/badge/Deployed-AWS-FF9900?logo=amazon-aws)](http://13.60.188.147/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/MuhamadBinImran/ecommerce-backend?style=social)](https://github.com/MuhamadBinImran/ecommerce-backend/stargazers)
 
 # 🛒 ecommerce-backend
 
-> A robust and modular backend for a Laravel-powered e-commerce platform — built with scalability, security, and flexibility in mind.
+> A robust and modular backend for a **Laravel-powered e-commerce platform**, built with scalability, security, and flexibility in mind.  
+> ✅ **Completed Project** · 🚀 **Live on AWS**
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- 📦 Dynamic product & category management  
-- 👤 User authentication & role-based access (Admin, Customer)  
-- 🔒 Middleware-driven secure access control  
-- 🔗 RESTful APIs for frontend integration  
-- 🧩 Clean MVC structure following Laravel best practices  
+- 📦 **Product & Category Management** — Full CRUD support  
+- 👤 **User Authentication & Roles** — Admin & Customer roles  
+- 🔒 **Secure Access Control** — Middleware-based protection  
+- 🛍 **Cart & Checkout APIs** — Manage shopping carts & orders  
+- 💳 **Payment-Ready** — Extensible structure for payment gateways  
+- 📊 **Order Management** — Track, update, and manage orders  
+- 🔗 **RESTful API Design** — Optimized for frontend integration  
 
 ---
 
-## 📸 Screenshots / Visuals
+## 🌍 Live Deployment
 
-*(Add your own screenshots or Canva-styled visuals here)*
+The project is deployed on **AWS EC2** and accessible here:  
+👉 [http://13.60.188.147/](http://13.60.188.147/)
 
 ---
 
 ## ⚙️ Prerequisites
 
-Make sure you have the following installed:
+Make sure you have the following installed locally:
 
-- [PHP 8.1+](https://www.php.net/)  
-- [Composer](https://getcomposer.org/) (dependency management)  
-- A database system: MySQL, PostgreSQL, or SQLite  
+- [PHP 8.3+](https://www.php.net/)  
+- [Composer](https://getcomposer.org/)  
+- [Node.js & NPM](https://nodejs.org/) (for frontend assets if required)  
+- A database system: **MySQL** (recommended), PostgreSQL, or SQLite  
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Installation & Setup
 
-Follow these steps to set up the project locally:
+Follow these steps to run the project locally:
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/MuhamadBinImran/ecommerce-backend.git
 cd ecommerce-backend
 
-# 2. Install dependencies
+# 2. Install PHP dependencies
 composer install
 
 # 3. Copy environment file
 cp .env.example .env
 
-# 4. Configure .env
+# 4. Configure .env file
 # Update DB credentials, APP_URL, etc.
 
 # 5. Generate application key
 php artisan key:generate
 
-# 6. Run database migrations (with optional seeds)
-php artisan migrate
-php artisan db:seed    # optional
+# 6. Run database migrations and seeders
+php artisan migrate --seed
 
-# 7. Compile assets (if applicable)
+# 7. Install Node dependencies (if applicable)
 npm install && npm run build
 
-# 8. Start development server
+# 8. Start the development server
 php artisan serve
 ````
 
-Your backend will be accessible at:
+The backend will now be running at:
 👉 `http://127.0.0.1:8000`
 
 ---
 
-## 📡 API Endpoints
+## 📡 API Endpoints (Examples)
 
-| Method | Endpoint          | Description                      |
-| ------ | ----------------- | -------------------------------- |
-| GET    | `/api/products`   | Fetch all products               |
-| POST   | `/api/auth/login` | Authenticate & return JWT token  |
-| GET    | `/api/profile`    | Retrieve authenticated user data |
+| Method | Endpoint          | Description                     |
+| ------ | ----------------- | ------------------------------- |
+| POST   | `/api/auth/login` | Authenticate & return JWT token |
+| GET    | `/api/products`   | Fetch all products              |
+| POST   | `/api/cart`       | Add product to cart             |
+| GET    | `/api/orders`     | Get all customer orders         |
 
-*(More endpoints will be documented as features expand.)*
-
+*(Check codebase for complete API documentation.)*
 ---
 
-## 🛠 Project Roadmap
+## 🛠 Tech Stack
 
-| ID | Feature                                   | Status         |
-| -- | ----------------------------------------- | -------------- |
-| 1  | Product & Category CRUD                   | ✅ Done         |
-| 2  | User Auth (Login / Register)              | ✅ Done         |
-| 3  | Role-based Access                         | 🚧 In Progress |
-| 4  | Order & Payment Workflow                  | ⏳ Planned      |
-| 5  | Third-party Integrations (Stripe, PayPal) | ⏳ Planned      |
+* **Framework:** Laravel 12
+* **Language:** PHP 8.3
+* **Database:** MySQL
+* **Deployment:** AWS EC2
+* **Package Manager:** Composer / NPM
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome!
+This is a **completed project**, but contributions are welcome.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/awesome-feature`)
-3. Commit your changes (`git commit -m 'Add awesome feature'`)
-4. Push to the branch (`git push origin feature/awesome-feature`)
-5. Open a Pull Request 🎉
+1. Fork the repo
+2. Create your feature branch (`git checkout -b feature/new-feature`)
+3. Commit changes (`git commit -m "Add new feature"`)
+4. Push to branch (`git push origin feature/new-feature`)
+5. Create a Pull Request 🎉
 
 ---
 
-## 📬 Support
+## 📬 Contact
 
-💌 Email: [youremail@example.com](mailto:youremail@example.com)
-🐛 Or open an issue on GitHub — I’ll respond ASAP!
+💻 GitHub: [MuhamadBinImran](https://github.com/MuhamadBinImran)
+🌐 Deployment: [AWS Link](http://13.60.188.147/)
 
 ---
 
@@ -122,24 +125,6 @@ Distributed under the **MIT License**. See the [LICENSE](LICENSE) file for detai
 
 ---
 
-## 🎨 Canva / Aesthetic Stickers (Optional)
-
-Want to make your README pop? Here are Canva ideas:
-
-* 🏷 Title Banner: “E-Commerce Backend” with a shopping cart icon
-* 📚 Section Dividers: Colored blocks or creative lines
-* 🛠 Badge Icons: Laravel, PHP, MySQL, API, Auth, Security
-* 💡 Callouts: “Pro Tip — Ensure `.env` DB credentials are correct”
-* ✅ Step Highlights: Arrows, check-marks for setup commands
-
-You can export designs as **PNG/PDF** and embed them:
-
-```md
-![Project Overview](path/to/your-exported-image.png)
-```
-
----
-
-🚀 Happy Coding! 🖤
+🚀 **Done & Deployed — Happy Coding!** 🖤
 
 ```
